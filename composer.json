@@ -1,0 +1,7 @@
+{
+    "require": {
+    "michelf/php-markdown": "~1.4",
+    "silex/silex": "~1.2",
+    "symfony/yaml": "~2.1"
+    }
+}
