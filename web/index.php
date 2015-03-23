@@ -1,190 +1,271 @@
 <?php
 
 require_once __DIR__.'/../vendor/autoload.php';
+
 use \Michelf\Markdown;
-    /**
-* This is the content.opf file
-*/
+use \Symfony\Component\Yaml\Yaml;
 
- $opf = array();
 /**
-* This is the toc.ncx file
+* Création et initialisation de l'application Silex 
 */
- $ncx = array();
+$app = new Silex\Application();
+
 /**
-* This is the pages array
-*/
-// $pages = array();
+  * Utilisation du micro-framework en testant la redirection d'url apour affichier la liste des livres
+  */
+$app->get('/', function () {
+  $dossier = __DIR__. '/../data/';
+  if($dossier = opendir($dossier))
+  {
+    }while($file = readdir($dossier)) {
+      if($file != '.' && $file != '..' && !is_dir($dirname.$file))
+      {
+        echo '<a href="'.$dirname.$file.'">'.$file.'</a>'; # A REVOIR LE LISTING
+      }
+    }
+    closedir($dir);
+  return 'Voici le catalogue';
+});
+
 /**
-* This is the temp folder used to store the book's files before zip it
+    * On utilise l'application Silex pour la redirection des livres par son nom pour l'afficher en MarkDown 
+    * @param Silex\Application $app 
+    * @param string $book
 */
- $temp_folder="salut";
+$app->get('/{book}.md', function (Silex\Application $app, $book) {  
+  if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
+    $text = file_get_contents('../data/'. $app->escape($book).'/README.md');
+  } else {
+     $app->abort(404, "Le bouquin $book est introuvable.");
+  } 
+  //createMetaInf($filename);
+  //CreateEPUB($app->escape($book));
+  return '<pre>'.$text.'</pre>';
+});
+
 /**
-* This is the book's uuid
+    * On utilise l'application Silex pour la redirection des livres par son nom pour l'afficher en html 
+    * @param Silex\Application $app 
+    * @param string $book
 */
- //$uuid;
-$error;
- $title = "salut";
+$app->get('/{book}.html', function (Silex\Application $app, $book) {
+  if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
+    $text = file_get_contents('../data/'.$book.'/README.md');
+    $html = Markdown::defaultTransform($text);
+  } else {
+    $app->abort(404, "Le bouquin $book est introuvable.");
+  }
+  return  $html;
+});
 
+/**
+    * On utilise l'application Silex pour la redirection des livres par son nom pour l'afficher en epub 
+    * @param Silex\Application $app 
+    * @param string $book
+*/
+$app->get('/{book}.epub', function (Silex\Application $app, $book) {
+  if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
+    $text = file_get_contents('../data/'.$book.'/README.md');
 
+    $html = Markdown::defaultTransform($text);
+    $zip = new ZipArchive();
+    $file = './modele.zip';
+    $newfile = '../data/'.$book.'/'.$book.'.epub';
+    copy($file, $newfile);
+    if($zip->open('../data/'.$book.'/'.$book.'.epub') === true) {
+       if (file_exists('../data/'.$book.'/meta.yaml')){
+         $yaml = Yaml::parse(file_get_contents('../data/'.$book.'/meta.yaml'));
+         $title = $yaml['title'];
+         $identifier = $yaml['identifier'];
+         $language = $yaml['language'];
+         /*****************************************
+        * ECRITURE DU FICHIER CONTENT.XML
+             * Contient le contenu textuel de l'eBook. C'est-à-dire le titre ainsi que le tout le contenu textuel du livre.
+            ******************************************/
+      //  $zip->addFromString('content.xhtml', ContentXML($html,$title));
+         /*****************************************
+             * ecriture du fichier META-INF/container.xml
+             * Le fichier container.xml contient la liste de tous les fichiers de la racine dans le fichier EPUB.
+             * Si un fichier EPUB contient plus d'un livre, le fichier container.xml contiendra des références à plus d'un fichier racine.
+             * La partie intéressante de ce fichier container.xml est l'élément <rootfile>.
+             * Cet element rootfile pointe vers la racine du livre EPUB.
+             * Le fichier racine est le fichier qui contient content.opf contenant lui-même les méta-données sur le livre EPUB.
+             *
+            ******************************************/
+        $zip->addFromString('META-INF/container.xml',ContainerXML()); 
+           /*****************************************
+             * ecriture du fichier content.opf
+             * Les métadonnées suivantes doivent être renseignées dans le fichier content.opf.
+             * Le fichier OPF (Open Packaging Format) permet d’indiquer au système de lecture quelle
+             * est la structure et le contenu d’un fichier epub. Il est principalement composé de meta-données
+             * et d’un manifeste servant à référencer les fichiers qui composent le livre numérique.
+             *
 
-//Création de toute l'arborescence de l'EPUB
- function CreateEPUB($name) {
-    // Creates all the folders needed
-    CreateFolders();
-    // If there's no error we're good to go
-    /*if ( $error ) {
-    return;*/
-    // Open the content.opf file
-        OpenOPF("book1","1","en");
-        
-        // Open the toc.ncx file
-        OpenNCX("book1","1");
-        
-        // Open the css.css file
-       // $this->OpenCSS();
-        
-        // Variables needed to put everything in the right place
-        $ncx = null;
-        $opf = null;
-        $fill_opf_spine = null;
+            ******************************************/
 
-        // Fill the NCX and OPF
-        $ncx[] = $ncx;
-        
-        $opf[] = $opf;
-        
-        // If there's a cover, we'll need an <itemref idref="cover" />
-       /* if ( $this->cover_img ) {
-            $this->opf[] = "<itemref idref=\"cover\" />\r\n";
-        }*/
-        
-        // Fill the spine
-       // $this->opf[] = $fill_opf_spine;
-        
-        // Closes the OPF and NCX
-        CloseOPF();
-        CloseNCX();
-        
-        // Create the OPF and NCX files
-        CreateOPF();
-        CreateNCX();
-        
-        $filename = '../data/'. $name.'/README.md';  
+            
 
-        $var = file_get_contents($filename);
-        $var = Markdown::defaultTransform($var);
-        // XHTML default page header
-        $page_content  = "<?xml version='1.0' encoding='utf-8'?>" . "\r\n";
-        $page_content .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">' . "\r\n";
-        $page_content .= '<html xmlns="http://www.w3.org/1999/xhtml">' . "\r\n";
-        $page_content .= '<head>' . "\r\n";
-        $page_content .= '<meta content="application/xhtml+xml; charset=utf-8" http-equiv="Content-Type"/>' . "\r\n";
-        $page_content .= '<link href="css.css" type="text/css" rel="stylesheet"/>' . "\r\n";
-        $page_content .= '<title> Book1 </title>' . "\r\n";
-        $page_content .= '</head>' . "\r\n";
-        $page_content .= '<body>' . $var ."</body>\r\n";
-    
-}
-// Creation des dossier pour l'EPUB
+          $zip->addFromString('content.opf', ContentOPF($zip,$html,$title, $identifier,$language));
+         /*****************************************
+             * ECRITURE DU FICHIER TOC.XML
+             * Ce fichier TOC (Table of Content) contient la table des matieres du livre epub.
+             *
+            ******************************************/
 
- function CreateFolders() {
-   /* if ( ! $temp_folder ) {
-        $temp_folder = preg_replace( '/[^A-Za-z0-9]/is', '', $title );
-        $temp_folder = strtolower( $temp_folder );
-    }*/
-    // Temp folder is the book's uuid
-    $temp_folder = __DIR__. '/../data/book1/salut/';
-    // Check to see if there's no folder with the same name
-   /* if( is_dir( $temp_folder ) ) {
-        $error = 'Le dossier existe déjà.';
-        return;
-    }*/
-    // Creates the main temp folder
-        mkdir( $temp_folder, 0777 );
-        // Check the folder
-        if ( ! is_dir( $temp_folder ) ) {
-            $error = "Cannot create EPUB folder \"{$temp_folder}\".";
-            return;
+            
+
+          $zip->addFromString('toc.ncx', ContentNCX($html,$identifier,$title));
+          $cont .= '<a href="../data/'.$book.'/'.$book.'.epub">Télécharger</a><br />';
+          $cont .= '<a href="index.php">Retour</a>';  
+         
+
         }
-        // Creates the other needed folders
-    mkdir( $temp_folder . '/META-INF', 0777 );
-    mkdir( $temp_folder . '/OEBPS', 0777 );
-    mkdir( $temp_folder . '/OEBPS/images', 0777 );
-    // Creates the container.xml
-       // CreateContainer();
-    // Creates the needed epub files
-    CreateFile( $temp_folder . '/mimetype', 'application/epub+zip');
-   // CreateFile( $temp_folder . '/OEBPS/css.css', $css);
-    $containers;
-        $containers  = '<?xml version="1.0"?>';
-        $containers .= '     <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container" >';
-        $containers .= '     <rootfiles>';
-        $containers .= '         <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>';
-        $containers .= '     </rootfiles>';
-        $containers .= '     </container>';
-    CreateFile( $temp_folder . '/META-INF/container.xml',  $containers);
+        else{
+         $zip->addFromString('content.xhtml', ContentXML($html,$title));
+         /*****************************************
+             * ecriture du fichier META-INF/container.xml
+             * Le fichier container.xml contient la liste de tous les fichiers de la racine dans le fichier EPUB.
+             * Si un fichier EPUB contient plus d'un livre, le fichier container.xml contiendra des références à plus d'un fichier racine.
+             * La partie intéressante de ce fichier container.xml est l'élément <rootfile>.
+             * Cet element rootfile pointe vers la racine du livre EPUB.
+             * Le fichier racine est le fichier qui contient content.opf contenant lui-même les méta-données sur le livre EPUB.
+             *
+            ******************************************/
+  
 
-}
-   
-/**
-     * Fonction qui créait des fichiers
-*/
+            
+
+          $zip->addFromString('content.opf', ContentOPF($zip,$html,$title, $identifier,$language));
+         /*****************************************
+             * ECRITURE DU FICHIER TOC.XML
+             * Ce fichier TOC (Table of Content) contient la table des matieres du livre epub.
+             *
+            ******************************************/
+
+            
+
+          $zip->addFromString('toc.ncx', ContentNCX($identifier,$title));
+          $cont .= '<a href="../data/'.$book.'/'.$book.'.epub">Télécharger</a><br />';
+          $cont .= '<a href="index.php">Retour</a>';  
+        }  
+
+      }
+      else {
+                $cont = "Impossible d'ouvrir &quot;Zip.zip<br/>";
+            }
+        } else {
+            $app->abort(404, "Book $book does not exist.");
+        }
+          
+        return  $cont;
+    });
+
 function CreateFile( $file, $content = null ) {
-        $handle = fopen( $file, 'w+' );
-        $ler = fwrite( $handle, $content );
-        fclose($handle);
+  $handle = fopen( $file, 'w+' );
+  $ler = fwrite( $handle, $content );
+  fclose($handle);
 }
     
+function ContentXML($h1,$title) {
+  $cont=$h1;
+
+  $ti=$title;
+  $contentxml = '<?xml version="1.0" encoding="UTF-8" ?>
+      <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+      <head>
+      <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+     <title>'.$ti.'
+      </title></head>
+      <body>'.$cont.'</body>
+      </html>';
+  return $contentxml;   
+}
+
+function ContainerXML() {
+   $containerxml = '<?xml version="1.0" ?>
+            <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+            <rootfiles>
+            <rootfile full-path="content.opf" media-type="application/oebps-package+xml"
+            />
+            </rootfiles>
+            </container>';
+  return $containerxml;   
+}
+  
     /**
      * Open OPF
      *
      * Fill the content.opf file ($opf property)
      */    
-    function OpenOPF($title, $uuid,$lang) {
-        $opf[] = '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n";
-        $opf[] = '<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookID" version="2.0" >' . "\r\n";
-        $opf[] = '<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">' . "\r\n";
-        $opf[] = '<dc:title>' . $title . '</dc:title>' . "\r\n";
-        //$opf[] = '<dc:creator opf:file-as="' . $this->creator . '" opf:role="aut">' . $this->creator . '</dc:creator>' . "\r\n";
-        //$opf[] = '<dc:rights>' . $this->rights . '</dc:rights>' . "\r\n";
-        //$opf[] = '<dc:publisher>' . $this->publisher . '</dc:publisher>';
-        $opf[] = '<dc:identifier id="BookID" opf:scheme="CustomID">' . $uuid . '</dc:identifier>' . "\r\n";
-        //$opf[] = '<meta name="cover" content="cover" />' . "\r\n";
-        $opf[] = '<dc:language>' . $lang . '</dc:language>' . "\r\n";
-        $opf[] = '</metadata><manifest>' . "\r\n";
-        $opf[] = '<<item id="page1" href="content.xhtml" media-type="application/xhtml+xml"/>' . "\r\n";
-        $opf[] = '<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />'. "\r\n";
-        $opf[] = '</manifest>'. "\r\n";
-        $opf[] = '<spine toc="ncx">'. "\r\n";
-        $opf[] = '<itemref idref="page1" />'. "\r\n";
-        $opf[] = '</spine>'. "\r\n";
+    function ContentOPF($zip,$html,$title, $identifier,$language) {
+          $dom = new DOMDocument;
+          @$dom->loadHTML($html);
 
-    }
+          $xpath = new DOMXpath($dom);
 
 
-    /**
-     * Close OPF
-     *
-     * End of the content.opf file
-     */    
-    function CloseOPF() {
-        $opf[] = '</spine></package>' . "\r\n";
-    }
+          $elementH1 = $xpath->query("/html/body/h1");
+          $elementH2 = $xpath->query("/html/body/h2");
+          var_dump($html);
+       /*  $contentopf = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+            <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookID" version="2.0" >
+            <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" >
+            <dc:title>'.$title.'</dc:title>
+            <dc:identifier id="BookID" opf:scheme="CustomID">'.$identifier.'</dc:identifier>
+            <dc:language>'.$language.'</dc:language>
+            </metadata>
+            <manifest>
+            <item id="page1" href="content.xhtml" media-type="application/xhtml+xml" />
+            <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
+            </manifest>
+            <spine toc="ncx" >
+            <itemref idref="page1" />
+            </spine>
+            </package>';*/
+          
     
-    /**
-     * Create OPF
-     *
-     * Creates the content.opf file
-     */    
-    function CreateOPF() {
-        $opf = null;
-        
-        foreach( $opf as $lines ) { 
-            $opf .= "$lines\r\n";
-        }
-        
-        CreateFile( $ttemp_folder . '/OEBPS/content.opf', $opf );
+           $contentopf = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+            <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookID" version="2.0" >
+            <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" >
+            <dc:title>'.$title.'</dc:title>
+            <dc:identifier id="BookID" >'.$identifier.'</dc:identifier>
+            <dc:language>'.$language.'</dc:language>
+            </metadata>
+            <manifest>
+            <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" /> 
+            ';
+            $key=1;
+           if (!is_null($elementH2)) {
+              foreach ($elementH2 as $element) {                
+                  $nodes = $element->childNodes;
+                  foreach ($nodes as $node) {
+                    $page = 'h1_' . $key;  
+                    $h1='<h1>'.$node->nodeValue.'</h1>';
+                    $zip->addFromString($page.'.xhtml',ContentXML($h1,$title));
+                    echo 'KEy : ' .$key1 . 'Nom : '. $node->nodeValue .'Page : ' . $page .'\n' ;
+                    $contentopf .= '<item id="' .  $key . '" href="' .  $page . '.xhtml" media-type="application/xhtml+xml" />';
+                     $key++;
+                  }
+              }
+            }
+            $contentopf .= '</manifest><spine toc="ncx" >';
+            $key2=1;
+             if (!is_null($elementH1)) {
+              foreach ($elementH1 as $element) {
+                 
+                  $nodes = $element->childNodes;
+                  foreach ($nodes as $node) {
+                    $page = 'h1_' . $key2;  
+                    $contentopf .= '<itemref idref="' . $key2 . '" />' . "\r\n";
+                     $key2++;
+                  }
+              }
+            }
+            $contentopf .=' </spine>
+            
+            </package>';
+           
+            return $contentopf;
     }
     
  /**
@@ -192,102 +273,79 @@ function CreateFile( $file, $content = null ) {
      *
      * Fill the toc.ncx content ($ncx property)
      */    
-    function OpenNCX($uuid,$title) {
-        $ncx[] = '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n";
-        $ncx[] = '<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">' . "\r\n";
-        $ncx[] = '<meta name="dtb:uid" content="' . $uuid . '"/>' . "\r\n";
-        $ncx[] = '<head>' . "\r\n";
-        $ncx[] = '<meta name="dtb:depth" content="1"/>' . "\r\n";
-        $ncx[] = '<meta name="dtb:totalPageCount" content="0"/>' . "\r\n";
-        $ncx[] = '<meta name="dtb:maxPageNumber" content="0"/>' . "\r\n";
-        $ncx[] = '</head>' . "\r\n";
-        $ncx[] = '<docTitle><text>' . $title . '</text></docTitle>' . "\r\n";
-        $ncx[] = '<navMap>' . "\r\n";
-    }
-    
-    /**
-     * Close NCX
-     *
-     * Closes the toc.ncx file content
-     */    
-   function CloseNCX() {
-        $ncx[] = '</navMap>' . "\r\n";
-        $ncx[] = '</ncx>' . "\r\n";
-    }
-    /**
-     * Create NCX
-     *
-     * Creates toc.ncx file
-     */    
-    function CreateNCX() {
-        $ncx = null;
-        
-        foreach( $ncx as $lines ) { 
-            $ncx .= "$lines\r\n";
-        }
-        
-        CreateFile( $temp_folder . '/OEBPS/toc.ncx', $ncx );
-    }
+    function ContentNCX($html,$identifier,$title) {
+        $dom = new DOMDocument;
+          @$dom->loadHTML($html);
+
+          $xpath = new DOMXpath($dom);
 
 
+         $elementH1 = $xpath->query("/html/body/h1");
+        $key1=1;
+         $toc = '<?xml version="1.0" encoding="UTF-8" ?>
+            <!DOCTYPE html>
+          <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+            <head>
+            <meta name="dtb:uid" content="'.$identifier.'" />
+            </head>
+            <docTitle>
+            <text>'.$title.'</text>
+            </docTitle>
+            <navMap>';
+            if (!is_null($elementH1)) {
+              foreach ($elementH1 as $element) {
 
-
-
-    
-
-    $app = new Silex\Application();
-
-    # Fonction de base pour index.html
-    $app->get('/', function () {
-        $dossier = __DIR__. '/../data/';
-        if($dossier = opendir($dossier))
-        {
-
-        }while($file = readdir($dossier)) {
-            if($file != '.' && $file != '..' && !is_dir($dirname.$file))
-            {
-             echo '<a href="'.$dirname.$file.'">'.$file.'</a>'; # A REVOIR LE LISTING
+                  $nodes = $element->childNodes;
+                  foreach ($nodes as $node) {
+                    $page = 'h1_';
+                      $toc  .= '<navPoint id="' . $page .''.$key1 . '" playOrder="' . $key1 . '">' . "\r\n";                     
+                      $toc .= '<navLabel>' . "\r\n";
+                      $toc .= '<text>' . $node->nodeValue . '</text>' . "\r\n";
+                      $toc .= '</navLabel>' . "\r\n";
+                      $toc .= '<content src="' . $page .''.$key1 . '.xhtml"/>' . "\r\n";
+                      $toc .= '</navPoint>' . "\r\n";
+                      $key1++;
+                  }
+              }
             }
-        }
-
-    closedir($dir);
-
-    return 'Voici le catalogue';
-
-});
-
-#Fonction markdown
-$app->get('/{book}.md', function ($book) use ($app) {
-
-	
-		$filename = '../data/'. $app->escape($book).'/README.md';
-		// if (file_exists ($filename)){
-  //   		$app->abort(404, "Post $book does not exist.");
-  //   	}	
-
-    	$var = file_get_contents($filename);
-       // createMetaInf($filename);
-        CreateEPUB($app->escape($book));
-    	return '<pre>'.$var.'</pre>';
-    //return  "<h1>{$post['title']}</h1>".
-           // "<p>{$post['body']}</p>";
-});
-
-# Fonction HTML
-$app->get('/{book}.html', function ($book) use ($app) {
-
+            
+           $toc .=' </navMap>
+            </ncx>';/*
+            /*$toc = '<?xml version="1.0" encoding="UTF-8" ?>
+            <ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/" >
+            <head>
+            <meta name="dtb:uid" content='.$identifier.' />
+            </head>
+            <docTitle>
+            <text>Hello World</text>
+            </docTitle>
+           <navMap>
+        <navPoint class="h1" id="ch1">
+            <navLabel>
+                <text>Chapter 1</text>
+            </navLabel>
+            <content src="content.html#ch_1"/>
+            <navPoint class="h2" id="ch_1_1">
+                <navLabel>
+                    <text>Chapter 1.1</text>
+                </navLabel>
+                <content src="content.html#ch_1_1"/>
+            </navPoint>
+        </navPoint>
+        <navPoint class="h1" id="ncx-2">
+            <navLabel>
+                <text>Chapter 2</text>
+            </navLabel>
+            <content src="content.html#ch_2"/>            
+        </navPoint>
+    </navMap>
+            </ncx>';*/
+        return $toc;
+    }
     
-        $filename = '../data/'. $app->escape($book).'/README.md';
-        // if (file_exists ($filename)){
-  //        $app->abort(404, "Post $book does not exist.");
-  //    }   
 
-        $var = file_get_contents($filename);
-        $var = Markdown::defaultTransform($var);
-        return $var;
-    //return  "<h1>{$post['title']}</h1>".
-           // "<p>{$post['body']}</p>";
-});
+
+
 
 $app->run();
 
