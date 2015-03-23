@@ -37,5 +37,5 @@ Notre projet utilisera
 Pour valider nos livres électroniques construits, on a utilisé  le [validateur](http://validator.idpf.org) de fichiers epub.
 
 
-## Affichage du fichier md
+## affichageMd
 
