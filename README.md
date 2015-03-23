@@ -19,7 +19,7 @@ Professor : Demko Christophe
 - [Streaming](#streaming)
 - [Known Issues](#known-issues)
 
-## introduction
+## Introduction
 L' ensemble des exercices va nous conduire à créer dynamiquement des livres au format [epub](http://www.idpf.org/epub/20/spec/OPF_2.0_latest.htm) à partir de fichier écrits au format markdown. Le format [markdown](http://fr.wikipedia.org/wiki/Markdown) a été inventé conjointement par :
 - [John Gruber](http://fr.wikipedia.org/wiki/John_Gruber) , célèbre blogueur américain du site [http://daringfireball.net](http://daringfireball.net).
 -  [Aaron Swartz](http://fr.wikipedia.org/wiki/Aaron_Swartz) , informaticien et militant de l'internet, luttant notamment contre les lois PIPA/SOPA américaines, décédé en janvier 2013 par suicide. Ce projet pédagogique veut aussi lui rendre hommage.
@@ -38,4 +38,11 @@ Pour valider nos livres électroniques construits, on a utilisé  le [validateur
 
 
 ## affichageMd
+
+
+
+
+blablablalvlfksdlfksdkfmlsdk,flmsdf*fksld
+fkdfds,fkd,flsd;lfs
+fssdfs:df,mlsd
 
