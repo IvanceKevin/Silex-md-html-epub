@@ -7,7 +7,7 @@ by Ivance Kevin
 Professor : Demko Christophe
 
 - [Introduction](#introduction)
-- [Affichage_md](#affichagemd)
+- [Affichagemd](#affichagemd)
   - [MongoDB](#mongodb)
   - [Server](#server)
 - [Installation](#installation)
@@ -37,7 +37,7 @@ Notre projet utilisera
 Pour valider nos livres électroniques construits, on a utilisé  le [validateur](http://validator.idpf.org) de fichiers epub.
 
 
-## Affichage_md
+## Affichagemd
 
 
 
