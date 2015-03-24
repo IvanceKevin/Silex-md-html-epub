@@ -35,3 +35,17 @@ Cette partie consiste à écrire un ensemble de fichiers PHP permettant d'affich
 La structure du projet est la suivante : 
 
 ![structure](./images/structure.png "structure du projet")
+
+- Le fichier **web/index.php est le point d'entrée de votre serveur, il sera écrit en utilisant la librairie
+silex et la librairie PHP markdown.
+- Le dossier lib servira à stocker le code des librairies que vous utiliserez.
+- Les dossiers situés dans le dossier data contiendront les fichiers sources au format markdown.
+
+Pour affichier des URL de la forme **http://localhost:8000/{book}.md** dont le **{book}** est un dossier existant dans le dossier **data**.
+L'affichage de cette URL a pour but d'afficher le contenu du fichier **README.md** situé à l'intérieur de ce dossier
+
+Exemple : 
+	```
+	**http://localhost:8000/book1.md**
+	```
+	Il devrait affichier le contenu du fichier **data/book1/README.md**
