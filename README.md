@@ -8,16 +8,7 @@ Professor : Demko Christophe
 
 - [Introduction](#introduction)
 - [Affichagemd](#affichagemd)
-  - [MongoDB](#mongodb)
-  - [Server](#server)
-- [Installation](#installation)
-  - [Dependencies](#dependencies)
-  - [ezseed](#ezseed)
-- [Update](#update)
-- [Configuration](#configuration)
-- [SFTP](#sftp)
-- [Streaming](#streaming)
-- [Known Issues](#known-issues)
+
 
 ## Introduction
 L' ensemble des exercices va nous conduire à créer dynamiquement des livres au format [epub](http://www.idpf.org/epub/20/spec/OPF_2.0_latest.htm) à partir de fichier écrits au format markdown. Le format [markdown](http://fr.wikipedia.org/wiki/Markdown) a été inventé conjointement par :
@@ -39,10 +30,8 @@ Pour valider nos livres électroniques construits, on a utilisé  le [validateur
 
 ## Affichagemd
 
+Cette partie consiste à écrire un ensemble de fichiers PHP permettant d'afficher des fichiers au format markdown ayant comme extension .md
 
+La structure du projet est la suivante : 
 
-
-blablablalvlfksdlfksdkfmlsdk,flmsdf*fksld
-fkdfds,fkd,flsd;lfs
-fssdfs:df,mlsd
-
+![structure](./images/structure.png "structure du projet")
