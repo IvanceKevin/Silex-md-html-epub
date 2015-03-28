@@ -8,7 +8,7 @@ Professor : Demko Christophe
 
 - [Introduction](#introduction)
 - [Affichagemd](#affichagemd)
-
+- [Affichagehtml](#affichagehtml)
 
 ## Introduction
 L' ensemble des exercices va nous conduire à créer dynamiquement des livres au format [epub](http://www.idpf.org/epub/20/spec/OPF_2.0_latest.htm) à partir de fichier écrits au format markdown. Le format [markdown](http://fr.wikipedia.org/wiki/Markdown) a été inventé conjointement par :
@@ -51,7 +51,7 @@ Exemple :
 
 Il devrait affichier le contenu du fichier **data/book1/README.md**
 
-![structure](./images/structure.png "structure du projet")
+![structure](./images/screen1_README_md.png "Image screen README.md")
 
 Code associé
 
@@ -65,3 +65,12 @@ Code associé
   return '<pre>'.$text.'</pre>';
 });
 ```
+
+**$app** :  On utilise l'application Silex pour la redirection des livres par son nom pour l'afficher en MarkDown 
+**$book$ : On récupère le nom du fichier md taper dans l'url ({book})
+
+On vérifie si le **nom du livre** (le nom du dossier) existe dans le dossier **data/** et si dans le dossier du livre il existe un fichier **README.md** 
+Si ce n'est pas le cas l'application retournera une page 404. 
+Si c'est le cas il affichera le livre en format md.
+
+## Affichagehtml
