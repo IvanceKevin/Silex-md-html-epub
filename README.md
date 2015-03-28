@@ -11,7 +11,7 @@ Professor : Demko Christophe
 - [Affichagehtml](#affichagehtml)
 - [LivreEpub](#livreepub)
 	- [LivreElectronique](#livreelectronique)
-	
+
 ## Introduction
 L' ensemble des exercices va nous conduire à créer dynamiquement des livres au format [epub](http://www.idpf.org/epub/20/spec/OPF_2.0_latest.htm) à partir de fichier écrits au format markdown. Le format [markdown](http://fr.wikipedia.org/wiki/Markdown) a été inventé conjointement par :
 - [John Gruber](http://fr.wikipedia.org/wiki/John_Gruber) , célèbre blogueur américain du site [http://daringfireball.net](http://daringfireball.net).
@@ -127,3 +127,21 @@ Exemple :
 	```
 	http://localhost:8000/index.php/book1.epub
 	```
+Code associé
+
+```
+	$text = file_get_contents('../data/'.$book.'/README.md');
+    $html = Markdown::defaultTransform($text);
+    $zip = new ZipArchive();
+    $file = './modele.zip';
+    $newfile = '../data/'.$book.'/'.$book.'.epub';
+    copy($file, $newfile);
+    $zip->addFromString('META-INF/container.xml',ContainerXML()); 
+    $zip->addFromString('content.opf', ContentOPF($zip,$html,$title, $identifier,$language));
+    $zip->addFromString('toc.ncx', ContentNCX($html,$identifier,$title));
+    $cont .= '<a href="../data/'.$book.'/'.$book.'.epub">Télécharger</a><br />';
+    $cont .= '<a href="index.php">Retour</a>';  
+    return $con;
+
+```
+
