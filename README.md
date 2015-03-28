@@ -9,7 +9,8 @@ Professor : Demko Christophe
 - [Introduction](#introduction)
 - [Affichagemd](#affichagemd)
 - [Affichagehtml](#affichagehtml)
-
+- [LivreEpub](#livreepub)
+	- [LivreElectronique](#livreelectronique)
 ## Introduction
 L' ensemble des exercices va nous conduire à créer dynamiquement des livres au format [epub](http://www.idpf.org/epub/20/spec/OPF_2.0_latest.htm) à partir de fichier écrits au format markdown. Le format [markdown](http://fr.wikipedia.org/wiki/Markdown) a été inventé conjointement par :
 - [John Gruber](http://fr.wikipedia.org/wiki/John_Gruber) , célèbre blogueur américain du site [http://daringfireball.net](http://daringfireball.net).
@@ -72,9 +73,11 @@ Code associé
 
 On vérifie si le **nom du livre** (le nom du dossier) existe dans le dossier **data/** et si dans le dossier du livre il existe un fichier **README.md** 
 Si ce n'est pas le cas l'application retournera une page 404. 
+
 Si c'est le cas il affichera le livre en format md.
 
 ## Affichagehtml
+
 Pour affichier des URL de la forme **http://localhost:8000/{book}.html** dont le **{book}** est un dossier existant dans le dossier **data**.
 L'affichage de cette URL a pour but d'afficher le contenu du fichier **README.md** situé à l'intérieur de ce dossier
 Pour l'afficher en html, nous allons le convertir en utilisant la librairie PHP Markdown sur le fichier README.md.
@@ -108,4 +111,18 @@ $app->get('/{book}.html', function (Silex\Application $app, $book) {
 
 On vérifie si le **nom du livre** (le nom du dossier) existe dans le dossier **data/** et si dans le dossier du livre il existe un fichier **README.md** 
 Si ce n'est pas le cas l'application retournera une page 404. 
+
 Si c'est le cas on utilise la librairie PHP Markdown pour le transformer en format **html** et l'afficher.
+
+## LivreEpub
+## LivreElectronique
+
+Pour télécharger le fichier le livre en format epub il faudra taper  l'URL de la forme **http://localhost:8000/{book}.html** dont le **{book}** est un dossier existant dans le dossier **data**.
+
+L'affichage de cette URL a pour but de vous permettre de télécharger le fichier **README.md** convertit en format epub.
+Ca vous permettra de l'ajouter dans l'un de vos logiciels préférés de bibliothèque Ebooks
+
+Exemple : 
+	```
+	http://localhost:8000/index.php/book1.epub
+	```
