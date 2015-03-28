@@ -36,7 +36,7 @@ La structure du projet est la suivante :
 
 ![structure](./images/structure.png "structure du projet")
 
-- Le fichier **web/index.php est le point d'entrée de votre serveur, il sera écrit en utilisant la librairie
+- Le fichier **web/index.php** est le point d'entrée de votre serveur, il sera écrit en utilisant la librairie
 silex et la librairie PHP markdown.
 - Le dossier lib servira à stocker le code des librairies que vous utiliserez.
 - Les dossiers situés dans le dossier data contiendront les fichiers sources au format markdown.
@@ -46,6 +46,21 @@ L'affichage de cette URL a pour but d'afficher le contenu du fichier **README.md
 
 Exemple : 
 	```
-	**http://localhost:8000/book1.md**
+	http://localhost:8000/index.php/book1.md
 	```
+
 	Il devrait affichier le contenu du fichier **data/book1/README.md**
+
+	![structure](./images/structure.png "structure du projet")
+
+	Code associé
+	```
+	$app->get('/{book}.md', function (Silex\Application $app, $book) {  
+  if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
+    $text = file_get_contents('../data/'. $app->escape($book).'/README.md');
+  } else {
+     $app->abort(404, "Le bouquin $book est introuvable.");
+  } 
+  return '<pre>'.$text.'</pre>';
+});
+	```
