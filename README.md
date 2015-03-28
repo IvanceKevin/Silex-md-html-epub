@@ -49,11 +49,11 @@ Exemple :
 	http://localhost:8000/index.php/book1.md
 	```
 
-	Il devrait affichier le contenu du fichier **data/book1/README.md**
+Il devrait affichier le contenu du fichier **data/book1/README.md**
 
-	![structure](./images/structure.png "structure du projet")
+![structure](./images/structure.png "structure du projet")
 
-	Code associé
+Code associé
 	```
 	$app->get('/{book}.md', function (Silex\Application $app, $book) {  
   if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
