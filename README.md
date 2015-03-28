@@ -87,3 +87,25 @@ Exemple :
 Il devrait affichier le contenu du fichier **data/book1/README.md**
 
 ![structure](./images/screen1_README_md_html.png "Image screen README.md en html")
+
+Code associé
+
+```
+$app->get('/{book}.html', function (Silex\Application $app, $book) {
+  if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
+    $text = file_get_contents('../data/'.$book.'/README.md');
+    $html = Markdown::defaultTransform($text);
+  } else {
+    $app->abort(404, "Le bouquin $book est introuvable.");
+  }
+  return  $html;
+});
+```
+
+**$app** :  On utilise l'application Silex pour la redirection des livres par son nom pour l'afficher en html  
+
+**$book** : On récupère le nom du fichier html taper dans l'url ({book})
+
+On vérifie si le **nom du livre** (le nom du dossier) existe dans le dossier **data/** et si dans le dossier du livre il existe un fichier **README.md** 
+Si ce n'est pas le cas l'application retournera une page 404. 
+Si c'est le cas on utilise la librairie PHP Markdown pour le transformer en format **html** et l'afficher.
