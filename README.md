@@ -67,10 +67,23 @@ Code associé
 ```
 
 **$app** :  On utilise l'application Silex pour la redirection des livres par son nom pour l'afficher en MarkDown 
-**$book$ : On récupère le nom du fichier md taper dans l'url ({book})
+
+**$book** : On récupère le nom du fichier md taper dans l'url ({book})
 
 On vérifie si le **nom du livre** (le nom du dossier) existe dans le dossier **data/** et si dans le dossier du livre il existe un fichier **README.md** 
 Si ce n'est pas le cas l'application retournera une page 404. 
 Si c'est le cas il affichera le livre en format md.
 
 ## Affichagehtml
+Pour affichier des URL de la forme **http://localhost:8000/{book}.html** dont le **{book}** est un dossier existant dans le dossier **data**.
+L'affichage de cette URL a pour but d'afficher le contenu du fichier **README.md** situé à l'intérieur de ce dossier
+Pour l'afficher en html, nous allons le convertir en utilisant la librairie PHP Markdown sur le fichier README.md.
+
+Exemple : 
+	```
+	http://localhost:8000/index.php/book1.html
+	```
+
+Il devrait affichier le contenu du fichier **data/book1/README.md**
+
+![structure](./images/screen1_README_md_html.png "Image screen README.md en html")
