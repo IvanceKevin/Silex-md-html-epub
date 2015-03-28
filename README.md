@@ -54,7 +54,8 @@ Il devrait affichier le contenu du fichier **data/book1/README.md**
 ![structure](./images/structure.png "structure du projet")
 
 Code associé
-	```
+
+```
 	$app->get('/{book}.md', function (Silex\Application $app, $book) {  
   if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
     $text = file_get_contents('../data/'. $app->escape($book).'/README.md');
@@ -63,4 +64,4 @@ Code associé
   } 
   return '<pre>'.$text.'</pre>';
 });
-	```
+```
