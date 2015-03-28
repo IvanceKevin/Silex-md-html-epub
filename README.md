@@ -127,21 +127,40 @@ Exemple :
 	```
 	http://localhost:8000/index.php/book1.epub
 	```
+
 Code associé
 
 ```
-	$text = file_get_contents('../data/'.$book.'/README.md');
-    $html = Markdown::defaultTransform($text);
-    $zip = new ZipArchive();
-    $file = './modele.zip';
-    $newfile = '../data/'.$book.'/'.$book.'.epub';
-    copy($file, $newfile);
-    $zip->addFromString('META-INF/container.xml',ContainerXML()); 
-    $zip->addFromString('content.opf', ContentOPF($zip,$html,$title, $identifier,$language));
-    $zip->addFromString('toc.ncx', ContentNCX($html,$identifier,$title));
-    $cont .= '<a href="../data/'.$book.'/'.$book.'.epub">Télécharger</a><br />';
-    $cont .= '<a href="index.php">Retour</a>';  
-    return $con;
-
+*/
+$app->get('/{book}.epub', function (Silex\Application $app, $book) {
+  	if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
+		$text = file_get_contents('../data/'.$book.'/README.md');
+	    $html = Markdown::defaultTransform($text);
+	    $zip = new ZipArchive();
+	    $file = './modele.zip';
+	    $newfile = '../data/'.$book.'/'.$book.'.epub';
+	    copy($file, $newfile);
+	    $zip->addFromString('META-INF/container.xml',ContainerXML()); 
+	    $zip->addFromString('content.opf', ContentOPF($zip,$html,$title, $identifier,$language));
+	    $zip->addFromString('toc.ncx', ContentNCX($html,$identifier,$title));
+	    $cont .= '<a href="../data/'.$book.'/'.$book.'.epub">Télécharger</a><br />';
+	    $cont .= '<a href="index.php">Retour</a>';  
+	    return $cont;
+	}
+});
 ```
+
+**$app** :  On utilise l'application Silex pour la redirection des livres par son nom pour l'afficher en html  
+
+**$book** : On récupère le nom du fichier html taper dans l'url ({book})
+
+On vérifie si le **nom du livre** (le nom du dossier) existe dans le dossier **data/** et si dans le dossier du livre il existe un fichier **README.md** 
+Si ce n'est pas le cas l'application retournera une page 404. 
+
+Si c'est le cas on  va générer un fichier epub en associant les informations que l'on récupère en html
+
+Création d'un epub : 
+- Structure d'un fichier epub :
+	![structure](./images/EpubStructure.png "Structure epub")
+
 
