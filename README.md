@@ -131,8 +131,7 @@ Exemple :
 Code associé
 
 ```
-*/
-$app->get('/{book}.epub', function (Silex\Application $app, $book) {
+	$app->get('/{book}.epub', function (Silex\Application $app, $book) {
   	if (file_exists('../data/'.$book) && file_exists('../data/'.$book.'/README.md') ) {
 		$text = file_get_contents('../data/'.$book.'/README.md');
 	    $html = Markdown::defaultTransform($text);
@@ -161,6 +160,17 @@ Si c'est le cas on  va générer un fichier epub en associant les informations q
 
 Création d'un epub : 
 - Structure d'un fichier epub :
+
 	![structure](./images/EpubStructure.png "Structure epub")
 
+Nous allons utilisé une **archive** zip nommé "modele.zip" situé dans le dossier **web/** pour créer notre epub.
+
+Notre modele zip contient :
+	- le minetype.
+	
+Nous ajoutons dans dans l'epub :
+
+	- META-INF/container.xml
+	- content.opf
+	- toc.ncx
 
