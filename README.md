@@ -11,6 +11,7 @@ Professor : Demko Christophe
 - [Affichagehtml](#affichagehtml)
 - [LivreEpub](#livreepub)
 	- [LivreElectronique](#livreelectronique)
+	- [AjoutMetaDonnees](#ajoutmetadonnees)
 
 ## Introduction
 L' ensemble des exercices va nous conduire à créer dynamiquement des livres au format [epub](http://www.idpf.org/epub/20/spec/OPF_2.0_latest.htm) à partir de fichier écrits au format markdown. Le format [markdown](http://fr.wikipedia.org/wiki/Markdown) a été inventé conjointement par :
@@ -163,14 +164,53 @@ Création d'un epub :
 
 	![structure](./images/EpubStructure.png "Structure epub")
 
-Nous allons utilisé une **archive** zip nommé "modele.zip" situé dans le dossier **web/** pour créer notre epub.
+Nous avons utilisés une **archive** zip nommé "modele.zip" situé dans le dossier **web/** pour créer notre epub.
 
 Notre modele zip contient :
 	- le minetype.
-	
+
 Nous ajoutons dans dans l'epub :
 
 	- META-INF/container.xml
 	- content.opf
 	- toc.ncx
+contenant les informations du fichier **README.mb** transformer en html.
 
+## AjoutMetaDonnees
+
+Pour l'ajout de méta données, nous regardons si il existe un fichier **meta.yaml** situé dans le dossier du livre électronique qui va permette de préciser : 
+	- le titre du livre électronique
+	- l'indentifiant du livre électronique
+	- le langage du livre électronique
+
+Code associé
+
+```
+use \Symfony\Component\Yaml\Yaml;
+	 if (file_exists('../data/'.$book.'/meta.yaml')){
+         $yaml = Yaml::parse(file_get_contents('../data/'.$book.'/meta.yaml'));
+         $title = $yaml['title'];
+         $identifier = $yaml['identifier'];
+         $language = $yaml['language'];
+
+        $zip->addFromString('META-INF/container.xml',ContainerXML()); 
+
+        $zip->addFromString('content.opf', ContentOPF($zip,$html,$title, $identifier,$language));
+        $zip->addFromString('toc.ncx', ContentNCX($html,$identifier,$title));
+        $cont .= '<a href="../data/'.$book.'/'.$book.'.epub">Télécharger</a><br />';
+        $cont .= '<a href="index.php">Retour</a>';  
+         
+
+    }
+        return  $cont;
+});
+```
+
+On utilise la représentation de de données **YAML** pour récupérer les informations suivantes : 
+	- le titre 
+	- l'identifiant
+	- le language
+
+
+
+ 
